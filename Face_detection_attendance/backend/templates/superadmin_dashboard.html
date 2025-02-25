@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin Panel</title>
+    <style>
+        body { 
+            background-color: #121212; 
+            color: #fff; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .container { 
+            background-color: #1f1f1f; 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); 
+            width: 400px; 
+        }
+        h1, h2 { 
+            text-align: center; 
+        }
+        form { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px; 
+        }
+        input, button { 
+            padding: 15px; 
+            font-size: 1.2rem; 
+            border: none; 
+            border-radius: 8px; 
+        }
+        input { 
+            background-color: #333; 
+            color: #fff; 
+        }
+        button { 
+            background-color: #4caf50; 
+            color: #fff; 
+            cursor: pointer; 
+        }
+        button:hover { 
+            background-color: #45a049; 
+        }
+        .admin-list { 
+            margin-top: 30px; 
+        }
+        .admin-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background-color: #333; 
+            padding: 10px 15px; 
+            border-radius: 8px; 
+            margin-bottom: 10px; 
+        }
+        .remove-btn { 
+            background-color: #d32f2f; 
+            color: white;
+            cursor: pointer;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+        }
+        .remove-btn:hover { 
+            background-color: #c62828; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Super Admin Panel</h1>
+        <h2>Manage Admin Users</h2>
+        
+        <form action="/add_admin" method="POST">
+            <input type="text" name="username" placeholder="New admin username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Add Admin</button>
+        </form>
+        
+        <div class="admin-list">
+            <h2>Existing Admins</h2>
+            {% for admin in admins %}
+            <div class="admin-item" id="admin-{{ admin.username }}">
+                <span>{{ admin.username }}</span>
+                <button class="remove-btn" onclick="removeAdmin('{{ admin.username }}', event)">Remove</button>
+
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        function removeAdmin(username, event) {
+    event.preventDefault(); // Prevent form submission or page navigation
+    fetch('/remove_admin', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `username=${username}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById(`admin-${username}`).remove();
+        } else {
+            alert('Failed to remove admin.');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+    </script>
+</body>
+</html>

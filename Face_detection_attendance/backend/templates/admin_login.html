@@ -1,0 +1,71 @@
+<!-- backend/templates/admin_login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Admin Login</title>
+    <style>
+        body { 
+            background-color: #121212; 
+            color: #fff; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        h1 { 
+            font-size: 2.5rem; 
+            margin-bottom: 30px; 
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background-color: #1f1f1f;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        input, button { 
+            padding: 15px; 
+            font-size: 1.2rem; 
+            border: none; 
+            border-radius: 8px; 
+        }
+        input { 
+            background-color: #333; 
+            color: #fff; 
+        }
+        button { 
+            background-color: #1f1f1f; 
+            color: #fff; 
+            cursor: pointer; 
+            transition: background 0.3s; 
+        }
+        button:hover { 
+            background-color: #333; 
+        }
+        a {
+            color: #fff;
+            margin-top: 20px;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hostel Admin Login</h1>
+    <form action="/login" method="POST">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+    <a href="/">Back to Home</a>
+</body>
+</html>
