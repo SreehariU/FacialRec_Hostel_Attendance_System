@@ -1,0 +1,50 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition System</title>
+    <style>
+        body { 
+            background-color: #121212; 
+            color: #fff; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        h1 { 
+            font-size: 2.5rem; 
+            margin-bottom: 50px; 
+        }
+        .button-container { 
+            display: flex; 
+            gap: 20px; 
+        }
+        button { 
+            padding: 15px 30px; 
+            font-size: 1.2rem; 
+            color: #fff; 
+            background-color: #1f1f1f; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: background 0.3s; 
+        }
+        button:hover { 
+            background-color: #333; 
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to Face Recognition System</h1>
+    <div class="button-container">
+        <button onclick="location.href='attendance.html'">Student Attendance</button>
+        <button onclick="location.href='admin_login.html'">Hostel Admin Login</button>
+    </div>
+</body>
+</html>
