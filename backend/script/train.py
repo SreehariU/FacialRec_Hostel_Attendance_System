@@ -1,46 +1,48 @@
-import cv2
-import os  
-import face_recognition
-import numpy as np
+import os
 import pickle
+import face_recognition
 
-# Dataset path
-dataset_path = "dataset"
-encodings = []
-labels = []
-label_dict = {}
+DATASET_PATH = "backend/dataset"
+MODEL_PATH = "backend/models/face_encodings.pkl"
+VALID_IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png")  # Only process images
 
-# Process each user's folder
-for person_name in os.listdir(dataset_path):
-    person_path = os.path.join(dataset_path, person_name)
+def train_model():
+    encodings = {}
 
-    if not os.path.isdir(person_path):
-        continue
+    for student_id in os.listdir(DATASET_PATH):
+        student_folder = os.path.join(DATASET_PATH, student_id, "processed")
 
-    # Use folder name (person_name) as label
-    user_id = person_name
-    label_dict[user_id] = person_name  # Map name to itself (no database ID)
-
-    # Process images in the user's folder
-    for image_name in os.listdir(person_path):
-        image_path = os.path.join(person_path, image_name)
-
-        img = cv2.imread(image_path)
-        if img is None:
-            print(f"Warning: Couldn't read image {image_path}. Skipping...")
+        if not os.path.exists(student_folder):
+            print(f"⚠️ No processed images found for student {student_id}, skipping...")
             continue
 
-        # Convert to RGB for FaceNet
-        rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        face_encodings = face_recognition.face_encodings(rgb_img)
+        for img_name in os.listdir(student_folder):
+            img_path = os.path.join(student_folder, img_name)
 
-        if len(face_encodings) > 0:
-            encodings.append(face_encodings[0])
-            labels.append(user_id)
+            # ✅ Ignore system files like .DS_Store
+            if not img_name.lower().endswith(VALID_IMAGE_EXTENSIONS):
+                print(f"⚠️ Skipping non-image file: {img_name}")
+                continue
 
-# Save the face encodings and labels
-data = {"encodings": encodings, "labels": labels, "label_dict": label_dict}
-with open("face_encodings.pkl", "wb") as f:
-    pickle.dump(data, f)
+            try:
+                img = face_recognition.load_image_file(img_path)
 
-print("Training Complete! Model saved as face_encodings.pkl")
+                # Get face encodings
+                face_encodings = face_recognition.face_encodings(img)
+                if face_encodings:  # ✅ Only store encoding if a face is found
+                    encodings[student_id] = face_encodings[0]
+                else:
+                    print(f"⚠️ No face detected in {img_path}, skipping...")
+            except Exception as e:
+                print(f"⚠️ Error processing {img_path}: {e}")
+
+    # Save encodings if at least one was found
+    if encodings:
+        with open(MODEL_PATH, "wb") as f:
+            pickle.dump(encodings, f)
+        print("✅ Model training complete!")
+    else:
+        print("⚠️ No face encodings found. Model training skipped.")
+
+if __name__ == "__main__":
+    train_model()

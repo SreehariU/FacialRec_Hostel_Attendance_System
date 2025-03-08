@@ -1,66 +1,71 @@
 import cv2
 import os
+import sys
 
-# Load OpenCV's face detector
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+# Paths
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_PATH = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
+DATASET_PATH = os.path.join(BASE_PATH, "dataset")
 
-# Create dataset directory
-dataset_path = "dataset"
-os.makedirs(dataset_path, exist_ok=True)
+def process_images(student_id):
+    """
+    Process images for a given student, detecting faces and saving processed images.
+    """
+    student_folder = os.path.join(DATASET_PATH, student_id)
+    
+    if not os.path.exists(student_folder):
+        print(f"❌ Error: Student folder not found: {student_folder}")
+        return False
 
-# Get user input for name (to be used as label)
-person_name = input("Enter your name (no spaces): ").strip()
-if not person_name:
-    print("Name cannot be empty. Exiting...")
-    exit()
+    output_folder = os.path.join(student_folder, "processed")
+    os.makedirs(output_folder, exist_ok=True)
 
-# Ensure folder for the person exists
-person_folder = os.path.join(dataset_path, person_name)
-os.makedirs(person_folder, exist_ok=True)
+    # Load face detection model
+    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 
-# Initialize webcam
-video_capture = cv2.VideoCapture(0)
-if not video_capture.isOpened():
-    print("Error: Could not access webcam")
-    exit()
+    processed_count = 0
 
-count = 0
-max_images = 50
+    for img_name in os.listdir(student_folder):
+        img_path = os.path.join(student_folder, img_name)
 
-print(f"Collecting {max_images} images for {person_name}. Look into the camera...")
+        # Skip non-image files
+        if not img_name.lower().endswith((".jpg", ".jpeg", ".png")):
+            continue
 
-try:
-    while count < max_images:
-        ret, frame = video_capture.read()
-        if not ret:
-            print("Failed to capture image. Exiting...")
-            break
+        img = cv2.imread(img_path)
+        if img is None:
+            print(f"⚠️ Warning: Failed to read image: {img_path}")
+            continue
 
-        # Convert to grayscale for detection
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
 
-        for (x, y, w, h) in faces:
-            count += 1
+        if len(faces) == 0:
+            print(f"⚠️ Warning: No faces detected in {img_name}")
+            continue
 
-            # Crop and resize face to 160x160
-            face = frame[y:y+h, x:x+w]
-            face = cv2.resize(face, (160, 160))
+        # Process each detected face
+        for idx, (x, y, w, h) in enumerate(faces):
+            face = img[y:y+h, x:x+w]
+            resized_face = cv2.resize(face, (160, 160))
+            
+            output_file = os.path.join(output_folder, f"{img_name.split('.')[0]}_face{processed_count + 1}.jpg")
+            cv2.imwrite(output_file, resized_face)
+            print(f"✅ Saved processed face: {output_file}")
+            processed_count += 1
 
-            # Save image with incremented count
-            img_path = os.path.join(person_folder, f"{person_name}_{count}.jpg")
-            cv2.imwrite(img_path, face)
+    if processed_count > 0:
+        print(f"✅ Successfully processed {processed_count} face images for {student_id}.")
+        return True
+    else:
+        print("⚠️ No faces processed.")
+        return False
 
-            # Draw bounding box
-            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python Datacollection.py <student_id>")
+        sys.exit(1)
 
-        # Show camera feed
-        cv2.imshow("Face Collection", frame)
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    print(f"Collected {count} images for {person_name}.")
-finally:
-    video_capture.release()
-    cv2.destroyAllWindows()
+    student_id = sys.argv[1]
+    success = process_images(student_id)
+    sys.exit(0 if success else 1)
