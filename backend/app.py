@@ -1,157 +1,225 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, jsonify
-import mysql.connector
+import datetime
 import subprocess
+import logging
+import numpy as np
+import base64
+import cv2
+from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory
+import mysql.connector
+from flask_cors import CORS
 
-app = Flask(__name__, template_folder='templates')
+# ✅ Setup logging
+logging.basicConfig(level=logging.DEBUG)
 
-# MySQL Database connection
-db = mysql.connector.connect(
-    host="localhost",
-    user="SreehariUpas",
-    password="Sreehari@2005",
-    database="attendance_system"
-)
+# ✅ Initialize Flask app
+app = Flask(__name__, template_folder="templates", static_folder="backend/static")
+CORS(app)
 
-# Home route
-@app.route('/')
+# ✅ Dataset directory
+# ✅ Update the dataset directory to the correct path
+DATASET_DIR = "/Users/sreehariupas/Desktop/Face_detection_attendance copy/backend/dataset"
+
+if not os.path.exists(DATASET_DIR):
+    os.makedirs(DATASET_DIR)
+UPLOAD_FOLDER = "backend/dataset"
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+# ✅ Function to get a new MySQL connection
+def get_db_connection():
+    try:
+        return mysql.connector.connect(
+            host="localhost",
+            user="SreehariUpas",
+            password="Sreehari@2005",
+            database="attendance_system",
+            autocommit=True
+        )
+    except mysql.connector.Error as e:
+        print("🔥 Database Connection Error:", e)
+        return None
+
+# ✅ Home route
+@app.route("/")
 def home():
-    return render_template('index.html')
+    return render_template("index.html")
 
-# Login route
-@app.route('/login', methods=['GET', 'POST'])
+# ✅ Save face images directly to the dataset folder
+@app.route('/save_face_image', methods=['POST'])
+def save_face_image():
+    try:
+        data = request.json
+        student_name = data['name'].replace(' ', '_')
+        image_data = data['image'].split(",")[1]
+
+        student_dir = os.path.join(DATASET_DIR, student_name)
+        os.makedirs(student_dir, exist_ok=True)
+
+        image_count = len(os.listdir(student_dir)) + 1
+        image_path = os.path.join(student_dir, f"{student_name}_{image_count}.jpg")
+
+        with open(image_path, "wb") as img_file:
+            img_file.write(base64.b64decode(image_data))
+
+        logging.debug(f"✅ Image saved at: {image_path}")
+        return jsonify({"message": "Image saved", "path": image_path})
+
+    except Exception as e:
+        logging.error(f"❌ Error saving image: {e}")
+        return jsonify({"error": "Failed to save image"}), 500
+# ✅ Login route
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        cursor = db.cursor(dictionary=True)
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+
+        cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM admins WHERE username = %s AND password = %s", (username, password))
         user = cursor.fetchone()
         cursor.close()
+        conn.close()
 
         if user:
-            if user['role'] == 'superadmin':
-                return redirect(url_for('superadmin_dashboard'))
+            if user["role"] == "superadmin":
+                return redirect(url_for("superadmin_dashboard"))
             else:
-                return redirect(url_for('admin_dashboard'))
+                return redirect(url_for("admin_dashboard"))
         else:
             return "Invalid credentials, please try again."
-    return render_template('admin_login.html')
+    return render_template("admin_login.html")
 
-# Superadmin Dashboard
-@app.route('/superadmin_dashboard')
+# ✅ Superadmin dashboard
+@app.route("/superadmin_dashboard")
 def superadmin_dashboard():
-    cursor = db.cursor(dictionary=True)
+    conn = get_db_connection()
+    if conn is None:
+        return jsonify({"error": "Database connection failed"}), 500
+
+    cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM admins WHERE role='admin'")
     admins = cursor.fetchall()
     cursor.close()
-    return render_template('superadmin_dashboard.html', admins=admins)
-
-# Admin Dashboard
-@app.route('/admin_dashboard')
-def admin_dashboard():
-    return render_template('admin_dashboard.html')
-
-# Combined route for registering students (GET to show form, POST to handle form submission)
-@app.route('/register_student', methods=['GET', 'POST'])
-def register_student():
-    if request.method == 'POST':
-        name = request.form['name']
-        roll_no = request.form['roll_no']
-        cursor = db.cursor()
-        
-        # Insert student into the database
-        cursor.execute('INSERT INTO students (name, roll_no) VALUES (%s, %s)', (name, roll_no))
-        db.commit()
-        
-        # Log the action
-        cursor.execute("INSERT INTO admin_log (action) VALUES (%s)", (f"Registered student: {name}",))
-        db.commit()
-        
-        cursor.close()
-        return redirect(url_for('admin_dashboard'))
+    conn.close()
     
-    # Render the registration form
-    return render_template('register_student.html')
+    return render_template("superadmin_dashboard.html", admins=admins)
 
+# ✅ Admin dashboard
+@app.route("/admin_dashboard")
+def admin_dashboard():
+    return render_template("admin_dashboard.html")
 
-# Route to handle student registration (can be expanded to save to DB later)
-@app.route('/add_student', methods=['POST'])
-def add_student():
-    data = request.form
-    print("Student data received:", data)
-    return "Student registered successfully!"
-
-# Route to trigger Datacollection.py
-def collect_face_data():
-    face_name = request.form['face_name']
-
-    if not face_name.strip():
-        return jsonify({'status': 'error', 'message': 'Invalid name. Please enter a valid name for face data collection.'}), 400
-
+# ✅ Get the next student ID
+def get_next_id():
     try:
-        # Run Datacollection.py and pass the name
-        process = subprocess.Popen(
-            ['python3', 'backend/script/Datacollection.py'],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
-        )
-        stdout, stderr = process.communicate(input=face_name)
+        conn = get_db_connection()
+        if conn is None:
+            return None
+        
+        cursor = conn.cursor()
+        cursor.execute("SELECT MAX(id) FROM students")
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
 
-        print("Datacollection.py output:", stdout)
-        print("Datacollection.py errors:", stderr)
+        next_id = (result[0] + 1) if result[0] else 1
+        return next_id
+    except mysql.connector.Error as e:
+        print("🔥 Database Error:", e)
+        return None
 
-        if process.returncode == 0:
-            return jsonify({'status': 'success', 'message': stdout.strip() or 'Face data collection started!'})
+@app.route("/get_next_student_id", methods=["GET"])
+def get_next_student_id():
+    next_id = get_next_id()
+    if next_id is None:
+        return jsonify({"error": "Database connection failed"}), 500
+    return jsonify({"next_id": next_id})
+
+# ✅ Register student route
+# ✅ Register student route
+@app.route("/register_student", methods=["GET", "POST"])
+def register_student():
+    if request.method == "GET":
+        return render_template("register_student.html")
+
+    if request.method == "POST":
+        if request.is_json:
+            data = request.get_json()
         else:
-            return jsonify({'status': 'error', 'message': stderr.strip() or 'Unknown error occurred.'})
+            data = request.form
 
-    except Exception as e:
-        print("Exception:", str(e))
-        return jsonify({'status': 'error', 'message': str(e)})
+        name = data.get("name")
+        roll_no = data.get("roll_no")
+        room_id = int(data.get("room_id", 0))
+        contact_number = data.get("contact_number")
+        parents_number = data.get("parents_number")
+        email = data.get("email")
+        emergency_contact = data.get("emergency_contact")
+        semester = data.get("semester", "")  # ✅ Corrected!
+        year = int(data.get("year", 0))
+        stream = data.get("stream")
+        created_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        conn = get_db_connection()
+        if conn is None:
+            return jsonify({"error": "Database connection failed"}), 500
+
+        cursor = conn.cursor()
+
+        sql = """
+        INSERT INTO students (name, roll_no, room_id, contact_number, parents_number, email, 
+        emergency_contact, semester, year, stream, created_at) 
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        values = (name, roll_no, room_id, contact_number, parents_number, email, emergency_contact, semester, year, stream, created_at)
+
+        try:
+            cursor.execute(sql, values)
+            conn.commit()
+            student_id = cursor.lastrowid
+
+            # ✅ Run Datacollection.py — fixed file path
+            student_name = name.replace(' ', '_')
+            datacollection_cmd = ["python3", "script/Datacollection.py", student_name]
+            subprocess.run(datacollection_cmd, check=True)
+            logging.debug(f"✅ Datacollection.py executed for {student_name}")
+
+            # ✅ Run train.py — fixed file path
+            train_cmd = ["python3", "script/train.py"]
+            subprocess.run(train_cmd, check=True)
+            logging.debug("✅ train.py executed successfully")
+
+            return jsonify({"message": "Student registered, face data collected, and model trained!"}), 201
+
+        except FileNotFoundError as e:
+            conn.rollback()
+            logging.error(f"❌ Script file not found: {e}")
+            return jsonify({"error": "Required script not found"}), 500
+
+        except subprocess.CalledProcessError as e:
+            conn.rollback()
+            logging.error(f"❌ Error running scripts: {e}")
+            return jsonify({"error": "Failed to process face data or train model"}), 500
+
+        except mysql.connector.Error as err:
+            conn.rollback()
+            logging.error(f"❌ Database Error: {err}")
+            return jsonify({"error": f"Database error: {err}"}), 500
+
+        finally:
+            cursor.close()
+            conn.close()
 
 
-# Room Assignment Page
-@app.route('/assign_room', methods=['GET', 'POST'])
-def assign_room():
-    if request.method == 'POST':
-        roll_no = request.form['roll_no']
-        room_no = request.form['room_no']
-        cursor = db.cursor()
-        cursor.execute('UPDATE students SET room_id = %s WHERE roll_no = %s', (room_no, roll_no))
-        db.commit()
-        cursor.execute("INSERT INTO admin_log (action) VALUES ('Assigned room {} to student {}')".format(room_no, roll_no))
-        db.commit()
-        cursor.close()
-        return redirect(url_for('admin_dashboard'))
-    return render_template('assign_room.html')
-
-# Billing Page
-@app.route('/billing', methods=['GET', 'POST'])
-def billing():
-    if request.method == 'POST':
-        roll_no = request.form['roll_no']
-        rent_fee = request.form['rent_fee']
-        mess_fee = request.form['mess_fee']
-        cursor = db.cursor()
-        cursor.execute('INSERT INTO billing (roll_no, rent, mess_fee) VALUES (%s, %s, %s)', (roll_no, rent_fee, mess_fee))
-        db.commit()
-        cursor.execute("INSERT INTO admin_log (action) VALUES ('Added billing for student {}')".format(roll_no))
-        db.commit()
-        cursor.close()
-        return redirect(url_for('admin_dashboard'))
-    return render_template('billing.html')
-
-# Admin Logs Page
-@app.route('/admin_logs')
-def admin_logs():
-    cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM admin_log ORDER BY timestamp DESC")
-    logs = cursor.fetchall()
-    cursor.close()
-    return render_template('admin_logs.html', logs=logs)
+# ✅ Serve model files
+@app.route("/models/<path:filename>")
+def serve_models(filename):
+    return send_from_directory("backend/models", filename)
 
 if __name__ == "__main__":
     app.run(debug=True)
