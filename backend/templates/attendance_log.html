@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance Log</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #121212;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .log-card {
+            background-color: #1f1f1f;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .log-card:hover {
+            background-color: #333;
+        }
+
+        .log-card h2 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .log-card button {
+            padding: 10px 20px;
+            background-color: #00bfa6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .log-card button:hover {
+            background-color: #008c7a;
+        }
+
+        .table-container {
+            background-color: #1f1f1f;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #00bfa6;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #333;
+        }
+
+        .status {
+            padding: 5px;
+            background-color: #00bfa6;
+            color: white;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Student Attendance Log</h1>
+
+    <div class="log-card">
+        <div>
+            <h2>Refresh Attendance Log for Updates</h2>
+            
+        </div>
+        <button onclick="window.location.href='/attendance_log'">Refresh Logs</button>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Student Name</th>
+                    <th>Check-in Date</th>
+                    <th>Check-in Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in attendance_logs %}
+                <tr>
+                    <td>{{ log.student_id }}</td>
+                    <td>{{ log.name }}</td>
+                    <td>{{ log.CheckinDate }}</td>
+                    <td>{{ log.CheckinTime }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" style="text-align:center;">No attendance records found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>
