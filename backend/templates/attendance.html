@@ -99,6 +99,12 @@
             background-color: #00bfa6;
             color: #fff;
         }
+
+        .error-message {
+            color: #ff4d4d;
+            font-size: 1.1rem;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -108,6 +114,7 @@
     <div class="webcam-container">
         <video id="webcam" autoplay></video>
         <button class="capture-btn" onclick="captureImage()">Capture Attendance</button>
+        <p id="error-message" class="error-message" style="display: none;"></p>
     </div>
 
     <!-- Attendance Table -->
@@ -130,48 +137,52 @@
     <script>
         // Access webcam
         const webcam = document.getElementById('webcam');
+        const errorMessage = document.getElementById('error-message');
+
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(stream => {
                 webcam.srcObject = stream;
             })
             .catch(err => {
                 console.error('Error accessing webcam:', err);
+                errorMessage.textContent = "Failed to access webcam.";
+                errorMessage.style.display = "block";
             });
 
         // Capture image from webcam and send to backend
         function captureImage() {
-    const canvas = document.createElement('canvas');
-    canvas.width = webcam.videoWidth;
-    canvas.height = webcam.videoHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
-    const imageData = canvas.toDataURL('image/jpeg');
+            const canvas = document.createElement('canvas');
+            canvas.width = webcam.videoWidth;
+            canvas.height = webcam.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL('image/jpeg');
 
-    fetch('http://127.0.0.1:5000/process_attendance', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ image: imageData })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            fetch('/process_attendance', {  // Adjusted to work with Flask routing
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ image: imageData })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    addAttendanceRow(data.date, data.time, data.student_id);
+                } else {
+                    showError(data.message);
+                }
+            })
+            .catch(err => {
+                console.error('Error submitting image:', err);
+                showError('Failed to process attendance.');
+            });
         }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            addAttendanceRow(data.date, data.time, data.student_id);
-        } else {
-            alert('Attendance failed: ' + data.message);
-        }
-    })
-    .catch(err => {
-        console.error('Error submitting image:', err);
-    });
-}
-
 
         // Add new attendance row
         function addAttendanceRow(date, time, studentID) {
@@ -183,6 +194,12 @@
                 <td><span class="status present">Present</span></td>
             </tr>`;
             table.innerHTML += row;
+        }
+
+        // Display error messages
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = "block";
         }
     </script>
 </body>

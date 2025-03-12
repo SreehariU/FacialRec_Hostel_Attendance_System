@@ -1,271 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Student</title>
-    <style>
-        body {
-            background-color: #000;
-            color: white;
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-            margin: 0;
-            overflow-y: auto;
-        }
-
-        .container {
-            background-color: #111;
-            padding: 20px;
-            border-radius: 10px;
-            width: 320px;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        label {
-            display: block;
-            text-align: left;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-
-        input, select, button {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            border: none;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-
-        input, select {
-            background-color: #222;
-            color: white;
-            border: 1px solid #444;
-        }
-
-        button {
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .start-camera {
-            background-color: #6a0dad;
-            color: white;
-        }
-
-        .disabled {
-            background-color: #333;
-            color: gray;
-            cursor: not-allowed;
-        }
-
-        .video-container {
-            display: none;
-            justify-content: center;
-            margin-top: 10px;
-        }
-
-        video {
-            width: 100%;
-            border-radius: 5px;
-        }
-
-        .progress-container {
-            display: none;
-            width: 100%;
-            background-color: #333;
-            border-radius: 5px;
-            margin-top: 10px;
-            height: 10px;
-        }
-
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background-color: #6a0dad;
-            border-radius: 5px;
-            transition: width 0.1s linear;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Student</title>
+  <style>
+    body {
+      background-color: #000;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      overflow-y: auto;
+    }
+    .container {
+      background-color: #111;
+      padding: 20px;
+      border-radius: 10px;
+      width: 320px;
+      text-align: center;
+      margin-top: 20px;
+    }
+    label {
+      display: block;
+      text-align: left;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      border: none;
+      border-radius: 5px;
+      box-sizing: border-box;
+    }
+    input, select {
+      background-color: #222;
+      color: white;
+      border: 1px solid #444;
+    }
+    button {
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .submit-button {
+      background-color: #6a0dad;
+      color: white;
+    }
+    .disabled {
+      background-color: #444;
+      cursor: not-allowed;
+    }
+    .video-container {
+      display: none;
+      justify-content: center;
+      margin-top: 10px;
+    }
+    video {
+      border: 1px solid #6a0dad;
+      border-radius: 5px;
+      width: 100%;
+      max-height: 240px;
+    }
+    .progress-container {
+      display: none;
+      margin-top: 10px;
+      background-color: #222;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 10px;
+      background-color: #6a0dad;
+      width: 0;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Register Student</h2>
-        <form id="register-form">
-            <label>ID:</label>
-            <input type="text" id="student_id" name="student_id" readonly>
+  <div class="container">
+    <h2>Register Student</h2>
+    <form id="register-form" method="POST">
+      <label>ID:</label>
+      <input type="text" id="student_id" name="student_id" readonly>
 
-            <label>Name:</label>
-            <input type="text" id="name" name="name" required>
+      <label>Name:</label>
+      <input type="text" id="name" name="name" required>
 
-            <label>Roll No:</label>
-            <input type="text" id="roll_no" name="roll_no" required>
+      <label>Roll No:</label>
+      <input type="text" id="roll_no" name="roll_no" required>
 
-            <label>Room ID:</label>
-            <input type="text" id="room_id" name="room_id" required>
+      <label>Room ID:</label>
+      <input type="text" id="room_id" name="room_id" required>
 
-            <label>Contact Number:</label>
-            <input type="text" id="contact_number" name="contact_number" required>
+      <label>Contact Number:</label>
+      <input type="text" id="contact_number" name="contact_number" required>
 
-            <label>Parent's Number:</label>
-            <input type="text" id="parents_number" name="parents_number" required>
+      <label>Parent's Number:</label>
+      <input type="text" id="parents_number" name="parents_number" required>
 
-            <label>Email:</label>
-            <input type="email" id="email" name="email" required>
+      <label>Email:</label>
+      <input type="email" id="email" name="email" required>
 
-            <label>Emergency Contact:</label>
-            <input type="text" id="emergency_contact" name="emergency_contact" required>
+      <label>Emergency Contact:</label>
+      <input type="text" id="emergency_contact" name="emergency_contact" required>
 
-            <label>Semester:</label>
-            <select id="semester" name="semester" onchange="updateYear()" required>
-                <option value="S1">S1</option>
-                <option value="S2">S2</option>
-                <option value="S3">S3</option>
-                <option value="S4">S4</option>
-                <option value="S5">S5</option>
-                <option value="S6">S6</option>
-                <option value="S7">S7</option>
-                <option value="S8">S8</option>
-            </select>
+      <label>Semester:</label>
+      <select id="semester" name="semester" onchange="updateYear()" required>
+        <option value="S1">S1</option>
+        <option value="S2">S2</option>
+        <option value="S3">S3</option>
+        <option value="S4">S4</option>
+        <option value="S5">S5</option>
+        <option value="S6">S6</option>
+        <option value="S7">S7</option>
+        <option value="S8">S8</option>
+      </select>
 
-            <label>Year:</label>
-            <input type="text" id="year" name="year" readonly>
+      <label>Year:</label>
+      <input type="text" id="year" name="year" readonly>
 
-            <label>Stream:</label>
-            <select id="stream" name="stream" required>
-                <option value="AE">Applied Electronics & Instrumentation Engineering (AE)</option>
-                <option value="AD">Artificial Intelligence & Data Science (AD)</option>
-                <option value="CE">Civil Engineering (CE)</option>
-                <option value="CS">Computer Science & Engineering (CS)</option>
-                <option value="CU">Computer Science & Business Systems (CU)</option>
-                <option value="EE">Electrical & Electronics Engineering (EE)</option>
-                <option value="EC">Electronics & Communication Engineering (EC)</option>
-                <option value="IT">Information Technology (IT)</option>
-                <option value="ME">Mechanical Engineering (ME)</option>
-            </select>
+      <label>Stream:</label>
+      <select id="stream" name="stream" required>
+        <option value="AE">Applied Electronics & Instrumentation Engineering (AE)</option>
+        <option value="AD">Artificial Intelligence & Data Science (AD)</option>
+        <option value="CE">Civil Engineering (CE)</option>
+        <option value="CS">Computer Science & Engineering (CS)</option>
+        <option value="CU">Computer Science & Business Systems (CU)</option>
+        <option value="EE">Electrical & Electronics Engineering (EE)</option>
+        <option value="EC">Electronics & Communication Engineering (EC)</option>
+        <option value="IT">Information Technology (IT)</option>
+        <option value="ME">Mechanical Engineering (ME)</option>
+      </select>
+      <label for="camera-select">Select Camera:</label>
+      <select id="camera-select"></select>
 
-            <button type="button" class="start-camera" onclick="startCamera()">Start Camera</button>
-            <button type="button" class="disabled" id="collect-face" disabled onclick="captureFaceData()">Collect Face Data</button>
-            <button type="submit" class="disabled" id="register" disabled>Register</button>
-        </form>
+      <button type="button" onclick="startCamera()">Start Camera</button>
+      <button type="button" id="collect-face" class="disabled" disabled onclick="captureFaceData()">Collect Face Data</button>
+      <button type="submit" id="register" class="submit-button disabled" disabled>Register</button>
+    </form>
 
-        <div class="video-container">
-            <video id="video" autoplay></video>
-        </div>
-
-        <div class="progress-container">
-            <div class="progress-bar" id="progress-bar"></div>
-        </div>
+    <div class="video-container">
+      <video id="video" autoplay></video>
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            fetchNextStudentID();
+    <div class="progress-container">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+  </div>
+
+  <script>
+    // When the DOM loads, fetch the next student ID and cameras
+    document.addEventListener("DOMContentLoaded", function() {
+      console.log("Fetching next student ID...");
+      fetchNextStudentID();
+      listCameras();
+    });
+  
+    function fetchNextStudentID() {
+      fetch("/get_next_student_id")
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("student_id").value = data.next_id || "Error fetching ID";
+        })
+        .catch(error => {
+          console.error("Error fetching student ID:", error);
+          document.getElementById("student_id").value = "Error";
         });
-
-        function fetchNextStudentID() {
-            fetch("/get_next_student_id")
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("student_id").value = data.next_id;
-                })
-                .catch(error => console.error("Error fetching student ID:", error));
-        }
-
-        function updateYear() {
-    const semester = document.getElementById("semester").value;
-    const yearMap = {
+    }
+  
+    function updateYear() {
+      const semester = document.getElementById("semester").value;
+      const yearMap = {
         S1: "1", S2: "1",
         S3: "2", S4: "2",
         S5: "3", S6: "3",
         S7: "4", S8: "4"
-    };
-    document.getElementById("year").value = yearMap[semester];
+      };
+      document.getElementById("year").value = yearMap[semester];
+    }
+  
+    // List available cameras
+    function listCameras() {
+      const cameraSelect = document.getElementById("camera-select");
+      navigator.mediaDevices.enumerateDevices()
+        .then(devices => {
+          cameraSelect.innerHTML = ""; // Clear existing options
+          devices.forEach(device => {
+            if (device.kind === "videoinput") {
+              const option = document.createElement("option");
+              option.value = device.deviceId;
+              option.textContent = device.label || `Camera ${cameraSelect.length + 1}`;
+              cameraSelect.appendChild(option);
+            }
+          });
+        })
+        .catch(error => console.error("Error listing cameras:", error));
+    }
+  
+    // Start camera with selected input
+    function startCamera() {
+      const selectedCamera = document.getElementById("camera-select").value;
+      const video = document.getElementById("video");
+      const videoContainer = document.querySelector(".video-container");
+  
+      navigator.mediaDevices.getUserMedia({ video: { deviceId: selectedCamera ? { exact: selectedCamera } : undefined } })
+        .then(stream => {
+          video.srcObject = stream;
+          videoContainer.style.display = "flex";
+          document.getElementById("collect-face").disabled = false;
+          document.getElementById("collect-face").classList.remove("disabled");
+        })
+        .catch(err => console.error("Error accessing camera:", err));
+    }
+  
+    // Capture face data
+    function captureFaceData() {
+      const video = document.getElementById("video");
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      const progressBar = document.getElementById("progress-bar");
+      const progressContainer = document.querySelector(".progress-container");
+      const studentId = document.getElementById("student_id").value;
+      let imageCount = 0;
+  
+      if (!studentId) {
+        alert("Student ID is missing. Please refresh and try again.");
+        return;
+      }
+      function listCameras() {
+  const cameraSelect = document.getElementById("camera-select");
+  navigator.mediaDevices.enumerateDevices()
+    .then(devices => {
+      console.log("Available media devices:", devices); // Debug log
+      cameraSelect.innerHTML = ""; 
+      devices.forEach(device => {
+        if (device.kind === "videoinput") {
+          const option = document.createElement("option");
+          option.value = device.deviceId;
+          option.textContent = device.label || `Camera ${cameraSelect.length + 1}`;
+          cameraSelect.appendChild(option);
+        }
+      });
+    })
+    .catch(error => console.error("Error listing cameras:", error));
 }
 
-        function startCamera() {
-            const video = document.getElementById("video");
-            const videoContainer = document.querySelector(".video-container");
-
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(stream => {
-                    video.srcObject = stream;
-                    videoContainer.style.display = "flex";
-                    document.getElementById("collect-face").disabled = false;
-                    document.getElementById("collect-face").classList.remove("disabled");
-                })
-                .catch(err => console.log("Error accessing camera:", err));
+  
+      progressContainer.style.display = "block";
+  
+      const captureInterval = setInterval(() => {
+        if (imageCount >= 50) {
+          clearInterval(captureInterval);
+          video.srcObject.getTracks().forEach(track => track.stop());
+          document.getElementById("register").disabled = false;
+          document.getElementById("register").classList.remove("disabled");
+          alert("Face data collection complete.");
+          return;
         }
-
-        function captureFaceData() {
-    const video = document.getElementById("video");
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
-    const totalImages = 50;
-    const progressBar = document.getElementById("progress-bar");
-    const progressContainer = document.querySelector(".progress-container");
-    const studentName = document.getElementById("name").value;
-
-    if (!studentName) {
-        alert("Please enter the student's name before collecting face data.");
-        return;
-    }
-
-    let imageCount = 0;
-    progressContainer.style.display = "block";
-
-    const captureInterval = setInterval(() => {
-        if (imageCount >= totalImages) {
-            clearInterval(captureInterval);
-            video.srcObject.getTracks().forEach(track => track.stop());
-            document.getElementById("register").disabled = false;
-            document.getElementById("register").classList.remove("disabled");
-            alert("Face data collection complete.");
-            return;
-        }
-
+  
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        // Convert the image to Base64
-        const imageData = canvas.toDataURL('image/jpeg');
-
-        // Send image data to Flask backend
+        const imageData = canvas.toDataURL("image/jpeg");
+  
         fetch("/save_face_image", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: studentName, image: imageData }),
-        })
-        .then(response => response.json())
-        .then(data => console.log("Image saved:", data))
-        .catch(error => console.error("Error saving image:", error));
-
-        imageCount++;
-        progressBar.style.width = `${(imageCount / totalImages) * 100}%`;
-    }, 100); // captures every 100ms
-}
-
-
-        document.getElementById("register-form").addEventListener("submit", function (e) {
-            e.preventDefault();
-
-            const formData = Object.fromEntries(new FormData(this));
-
-            fetch("http://127.0.0.1:5000/register_student", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
-            })
-            .then(response => response.json())
-            .then(data => alert(data.message || "Failed to register student."))
-            .catch(error => console.error("Error:", error));
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ student_id: studentId, image: imageData }),
         });
-    </script>
+  
+        imageCount++;
+        progressBar.style.width = `${(imageCount / 50) * 100}%`;
+      }, 100);
+    }
+  
+    // Form submission
+    document.getElementById("register-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const formData = Object.fromEntries(new FormData(document.getElementById("register-form")));
+  
+      fetch("/register_student", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert(data.message || "Student registered successfully!");
+      })
+      .catch(error => {
+        console.error("Error:", error);
+      });
+    });
+  </script>
 </body>
 </html>

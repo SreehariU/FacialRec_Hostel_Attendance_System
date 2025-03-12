@@ -21,9 +21,27 @@
             margin: auto;
             padding: 20px;
         }
-        h1 {
-            text-align: center;
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 30px;
+        }
+        h1 {
+            font-size: 2rem;
+        }
+        .logout-btn {
+            padding: 10px 20px;
+            background-color: #ff4d4d;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .logout-btn:hover {
+            background-color: #cc0000;
         }
         .dashboard {
             display: grid;
@@ -37,6 +55,11 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease-in-out;
+            height: 150px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
         .card:hover {
             background-color: #333;
@@ -44,6 +67,10 @@
         .icon {
             font-size: 50px;
             margin-bottom: 15px;
+        }
+        h2 {
+            font-size: 18px;
+            text-align: center;
         }
         a {
             text-decoration: none;
@@ -53,19 +80,19 @@
 </head>
 <body>
     <div class="container">
-        <h1>Admin Dashboard</h1>
+        <header>
+            <h1>Admin Dashboard</h1>
+            <form action="/logout" method="POST" style="display: inline;">
+                <button type="submit" class="logout-btn">Logout</button>
+            </form>
+            
+        </header>
+
         <div class="dashboard">
             <a href="/register_student">
                 <div class="card">
                     <div class="icon">👤</div>
                     <h2>Register Student</h2>
-                </div>
-            </a>
-
-            <a href="/assign_room">
-                <div class="card">
-                    <div class="icon">🏠</div>
-                    <h2>Assign Room</h2>
                 </div>
             </a>
 
@@ -78,8 +105,22 @@
 
             <a href="/admin_logs">
                 <div class="card">
-                    <div class="icon">📜</div>
+                    <div class="icon">🧵</div>
                     <h2>Admin Logs</h2>
+                </div>
+            </a>
+
+            <a href="/attendance_log">
+                <div class="card">
+                    <div class="icon">📅</div>
+                    <h2>Student Attendance Log</h2>
+                </div>
+            </a>
+
+            <a href="/manage_students">
+                <div class="card">
+                    <div class="icon">🎓</div>
+                    <h2>Manage Students</h2>
                 </div>
             </a>
         </div>

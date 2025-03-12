@@ -126,9 +126,9 @@
                 {% for log in attendance_logs %}
                 <tr>
                     <td>{{ log.student_id }}</td>
-                    <td>{{ log.name }}</td>
-                    <td>{{ log.CheckinDate }}</td>
-                    <td>{{ log.CheckinTime }}</td>
+                    <td>{{ log.students.name if log.students else 'N/A' }}</td>
+                    <td>{{ log.checkin_date }}</td>
+                    <td>{{ log.checkin_time }}</td>
                 </tr>
                 {% else %}
                 <tr>
