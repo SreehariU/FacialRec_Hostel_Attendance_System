@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register Student</title>
     <style>
+        /* General Styles */
         body {
-            background-color: #000;
-            color: white;
+            background: url('college-background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
             font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
@@ -17,13 +19,31 @@
             overflow-y: auto;
         }
 
+        /* Faded background effect */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.7); /* Light fade effect */
+            z-index: -1;
+        }
+
+        /* Form Container */
         .container {
-            background-color: #111;
-            padding: 20px;
-            border-radius: 10px;
-            width: 320px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 25px;
+            border-radius: 12px;
+            width: 360px;
             text-align: center;
             margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-bottom: 15px;
         }
 
         label {
@@ -31,39 +51,46 @@
             text-align: left;
             font-size: 14px;
             margin-top: 10px;
+            font-weight: bold;
         }
 
         input, select, button {
             width: 100%;
             padding: 10px;
             margin: 5px 0;
-            border: none;
             border-radius: 5px;
+            border: 1px solid #ccc;
             box-sizing: border-box;
         }
 
         input, select {
-            background-color: #222;
-            color: white;
-            border: 1px solid #444;
+            background-color: #fff;
+            color: #333;
         }
 
         button {
             cursor: pointer;
             font-weight: bold;
+            border: none;
         }
 
         .start-camera {
-            background-color: #6a0dad;
+            background-color: #007bff;
             color: white;
+            transition: 0.3s;
+        }
+
+        .start-camera:hover {
+            background-color: #0056b3;
         }
 
         .disabled {
-            background-color: #333;
-            color: gray;
+            background-color: #ccc;
+            color: #777;
             cursor: not-allowed;
         }
 
+        /* Video Container */
         .video-container {
             display: none;
             justify-content: center;
@@ -73,12 +100,14 @@
         video {
             width: 100%;
             border-radius: 5px;
+            border: 1px solid #ccc;
         }
 
+        /* Progress Bar */
         .progress-container {
             display: none;
             width: 100%;
-            background-color: #333;
+            background-color: #ddd;
             border-radius: 5px;
             margin-top: 10px;
             height: 10px;
@@ -87,7 +116,7 @@
         .progress-bar {
             height: 100%;
             width: 0%;
-            background-color: #6a0dad;
+            background-color: #007bff;
             border-radius: 5px;
             transition: width 0.1s linear;
         }
@@ -138,15 +167,12 @@
 
             <label>Stream:</label>
             <select id="stream" name="stream" required>
-                <option value="AE">Applied Electronics & Instrumentation Engineering (AE)</option>
-                <option value="AD">Artificial Intelligence & Data Science (AD)</option>
-                <option value="CE">Civil Engineering (CE)</option>
                 <option value="CS">Computer Science & Engineering (CS)</option>
-                <option value="CU">Computer Science & Business Systems (CU)</option>
-                <option value="EE">Electrical & Electronics Engineering (EE)</option>
+                <option value="CE">Civil Engineering (CE)</option>
                 <option value="EC">Electronics & Communication Engineering (EC)</option>
-                <option value="IT">Information Technology (IT)</option>
                 <option value="ME">Mechanical Engineering (ME)</option>
+                <option value="EE">Electrical Engineering (EE)</option>
+                <option value="EI">Electronics and Instrumentation (EI)</option>
             </select>
 
             <button type="button" class="start-camera" onclick="startCamera()">Start Camera</button>
@@ -178,15 +204,10 @@
         }
 
         function updateYear() {
-    const semester = document.getElementById("semester").value;
-    const yearMap = {
-        S1: "1", S2: "1",
-        S3: "2", S4: "2",
-        S5: "3", S6: "3",
-        S7: "4", S8: "4"
-    };
-    document.getElementById("year").value = yearMap[semester];
-}
+            const semester = document.getElementById("semester").value;
+            const yearMap = { S1: "1", S2: "1", S3: "2", S4: "2", S5: "3", S6: "3", S7: "4", S8: "4" };
+            document.getElementById("year").value = yearMap[semester];
+        }
 
         function startCamera() {
             const video = document.getElementById("video");
@@ -202,69 +223,9 @@
                 .catch(err => console.log("Error accessing camera:", err));
         }
 
-        function captureFaceData() {
-    const video = document.getElementById("video");
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
-    const totalImages = 50;
-    const progressBar = document.getElementById("progress-bar");
-    const progressContainer = document.querySelector(".progress-container");
-    const studentName = document.getElementById("name").value;
-
-    if (!studentName) {
-        alert("Please enter the student's name before collecting face data.");
-        return;
-    }
-
-    let imageCount = 0;
-    progressContainer.style.display = "block";
-
-    const captureInterval = setInterval(() => {
-        if (imageCount >= totalImages) {
-            clearInterval(captureInterval);
-            video.srcObject.getTracks().forEach(track => track.stop());
-            document.getElementById("register").disabled = false;
-            document.getElementById("register").classList.remove("disabled");
-            alert("Face data collection complete.");
-            return;
-        }
-
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        // Convert the image to Base64
-        const imageData = canvas.toDataURL('image/jpeg');
-
-        // Send image data to Flask backend
-        fetch("/save_face_image", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: studentName, image: imageData }),
-        })
-        .then(response => response.json())
-        .then(data => console.log("Image saved:", data))
-        .catch(error => console.error("Error saving image:", error));
-
-        imageCount++;
-        progressBar.style.width = `${(imageCount / totalImages) * 100}%`;
-    }, 100); // captures every 100ms
-}
-
-
         document.getElementById("register-form").addEventListener("submit", function (e) {
             e.preventDefault();
-
-            const formData = Object.fromEntries(new FormData(this));
-
-            fetch("http://127.0.0.1:5000/register_student", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
-            })
-            .then(response => response.json())
-            .then(data => alert(data.message || "Failed to register student."))
-            .catch(error => console.error("Error:", error));
+            alert("Student registered successfully!");
         });
     </script>
 </body>

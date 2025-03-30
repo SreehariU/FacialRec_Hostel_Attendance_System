@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Attendance Log</title>
     <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light-bg: #ecf0f1;
+            --dark-text: #2c3e50;
+            --light-text: #ecf0f1;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,103 +26,134 @@
         }
 
         body {
-            background-color: #121212;
-            color: #fff;
-            font-family: 'Arial', sans-serif;
-            padding: 20px;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            padding: 0px;
         }
 
         .container {
             max-width: 1200px;
             margin: auto;
-            padding: 20px;
+            padding-bottom: 20px;
         }
 
-        h1 {
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 20px;
+            width: 100%;
             text-align: center;
             margin-bottom: 30px;
+            color: var(--light-text);
+            font-size: 28px;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 20px;
         }
 
+       /* h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background-color: var(--accent);
+            border-radius: 3px;
+        }*/
+
         .log-card {
-            background-color: #1f1f1f;
-            border-radius: 12px;
+            background-color: white;
+            width: 800px;
+            border-radius: 10px;
             padding: 20px;
-            margin-bottom: 20px;
+            margin: 20px auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background-color 0.3s ease;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
         }
 
         .log-card:hover {
-            background-color: #333;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
         }
 
         .log-card h2 {
-            font-size: 1.2rem;
-            margin-bottom: 10px;
+            font-size: 18px;
+            font-weight: 600;
         }
 
         .log-card button {
             padding: 10px 20px;
-            background-color: #00bfa6;
+            background-color: var(--accent);
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: var(--transition);
+            font-weight: 600;
         }
 
         .log-card button:hover {
-            background-color: #008c7a;
+            background-color: var(--primary);
         }
 
         .table-container {
-            background-color: #1f1f1f;
-            border-radius: 12px;
+            background-color: white;
+            border-radius: 10px;
             padding: 20px;
-            margin-top: 20px;
+            margin: 20px;
+            box-shadow: var(--card-shadow);
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            margin: 20px auto;
         }
 
         th, td {
-            padding: 10px;
+            padding: 12px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
 
         th {
-            background-color: #00bfa6;
+            background-color: var(--primary);
             color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--light-bg);
         }
 
         tr:hover {
-            background-color: #333;
+            background-color: rgba(52, 152, 219, 0.15);
         }
 
         .status {
             padding: 5px;
-            background-color: #00bfa6;
+            background-color: var(--success);
             color: white;
             border-radius: 8px;
             text-align: center;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
+    <header>Student Attendance Log</header>
 
 <div class="container">
-    <h1>Student Attendance Log</h1>
+    
 
     <div class="log-card">
-        <div>
-            <h2>Refresh Attendance Log for Updates</h2>
-            
-        </div>
+        <h2>Refresh Attendance Log for Updates</h2>
         <button onclick="window.location.href='/attendance_log'">Refresh Logs</button>
     </div>
 
@@ -138,7 +183,6 @@
             </tbody>
         </table>
     </div>
-
 </div>
 
 </body>
