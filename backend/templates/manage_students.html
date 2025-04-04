@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Students</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            margin: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+        .container {
+            width: 95%;
+            max-width: 1600px;
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+            overflow-x: auto;
+            margin: 20px auto;
+        }
+        table {
+            width: 100%;
+            min-width: 1400px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            white-space: nowrap;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        th {
+            background-color: #333;
+            color: #fff;
+        }
+        td {
+            background-color: #1e1e1e;
+        }
+        tr:nth-child(even) {
+            background-color: #2c2c2c;
+        }
+        tr:hover {
+            background-color: #3a3a3a;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-edit {
+            background-color: #4caf50;
+            color: #fff;
+        }
+        .btn-delete {
+            background-color: #f44336;
+            color: #fff;
+        }
+        .btn-edit:hover {
+            background-color: #388e3c;
+        }
+        .btn-delete:hover {
+            background-color: #d32f2f;
+        }
+        form {
+            display: inline;
+        }
+        .edit-form {
+            display: none;
+        }
+        input {
+            padding: 10px;
+            margin-right: 10px;
+            background-color: #2c2c2c;
+            color: #fff;
+            border: 1px solid #4caf50;
+            border-radius: 4px;
+        }
+        @media (max-width: 768px) {
+            th, td {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+            .btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Manage Students</h1>
+    <div class="container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Roll No</th>
+                    <th>Room ID</th>
+                    <th>Contact</th>
+                    <th>Parents' Contact</th>
+                    <th>Email</th>
+                    <th>Emergency Contact</th>
+                    <th>Semester</th>
+                    <th>Year</th>
+                    <th>Stream</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <!-- Data Row -->
+                <tr id="student-{{ student.id }}">
+                    <td>{{ student.id }}</td>
+                    <td><span id="name-{{ student.id }}">{{ student.name }}</span></td>
+                    <td><span id="roll_no-{{ student.id }}">{{ student.roll_no }}</span></td>
+                    <td><span id="room_id-{{ student.id }}">{{ student.room_id }}</span></td>
+                    <td><span id="contact_number-{{ student.id }}">{{ student.contact_number }}</span></td>
+                    <td><span id="parents_number-{{ student.id }}">{{ student.parents_number }}</span></td>
+                    <td><span id="email-{{ student.id }}">{{ student.email }}</span></td>
+                    <td><span id="emergency_contact-{{ student.id }}">{{ student.emergency_contact }}</span></td>
+                    <td><span id="semester-{{ student.id }}">{{ student.semester }}</span></td>
+                    <td><span id="year-{{ student.id }}">{{ student.year }}</span></td>
+                    <td><span id="stream-{{ student.id }}">{{ student.stream }}</span></td>
+                    <td class="actions">
+                        <button class="btn btn-edit" onclick="toggleEditForm({{ student.id }})">Edit</button>
+                        <form action="{{ url_for('delete_student', student_id=student.id) }}" method="POST" onsubmit="return confirm('Are you sure?');">
+                            <button type="submit" class="btn btn-delete">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            
+                <!-- Edit Form Row -->
+                <tr id="edit-form-{{ student.id }}" class="edit-form">
+                    <form method="POST" action="/update_student/{{ student.id }}">
+                        <td>{{ student.id }}</td>
+                        <td><input type="text" name="name" value="{{ student.name }}" required></td>
+                        <td><input type="text" name="roll_no" value="{{ student.roll_no }}" required></td>
+                        <td><input type="text" name="room_id" value="{{ student.room_id }}" required></td>
+                        <td><input type="text" name="contact_number" value="{{ student.contact_number }}" required></td>
+                        <td><input type="text" name="parents_number" value="{{ student.parents_number }}" required></td>
+                        <td><input type="email" name="email" value="{{ student.email }}" required></td>
+                        <td><input type="text" name="emergency_contact" value="{{ student.emergency_contact }}" required></td>
+                        <td><input type="text" name="semester" value="{{ student.semester }}" required></td>
+                        <td><input type="text" name="year" value="{{ student.year }}" required></td>
+                        <td><input type="text" name="stream" value="{{ student.stream }}" required></td>
+                        <td class="actions">
+                            <button type="submit" class="btn btn-edit">Save</button>
+                            <button type="button" class="btn btn-delete" onclick="toggleEditForm({{ student.id }})">Cancel</button>
+                        </td>
+                    </form>
+                </tr>
+                {% endfor %}
+            </tbody>
+            
+        </table>
+    </div>
+
+    <script>
+function toggleEditForm(studentId) {
+    const formRow = document.getElementById(`edit-form-${studentId}`);
+    const dataRow = document.getElementById(`student-${studentId}`);
+    
+    if (formRow.style.display === "none" || formRow.style.display === "") {
+        formRow.style.display = "table-row";
+        dataRow.style.display = "none"; // Hide the data row
+    } else {
+        formRow.style.display = "none";
+        dataRow.style.display = "table-row"; // Show the data row again
+    }
+}
+
+    </script>
+</body>
+</html>
