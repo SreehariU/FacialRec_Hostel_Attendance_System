@@ -168,18 +168,12 @@
                 </tr>
             </thead>
             <tbody>
-                {% for log in attendance_logs %}
                 <tr>
-                    <td>{{ log.student_id }}</td>
-                    <td>{{ log.name }}</td>
-                    <td>{{ log.CheckinDate }}</td>
-                    <td>{{ log.CheckinTime }}</td>
+                   
                 </tr>
-                {% else %}
                 <tr>
                     <td colspan="4" style="text-align:center;">No attendance records found.</td>
                 </tr>
-                {% endfor %}
             </tbody>
         </table>
     </div>
