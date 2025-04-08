@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manual Attendance</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f5f7fa;
+            color: #2c3e50;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        form {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Manual Attendance</h1>
+
+<form method="POST" action="/submit_manual_attendance">
+    <label for="student_id">Student ID</label>
+    <input type="number" id="student_id" name="student_id" required>
+
+    <label for="checkin_date">Check-in Date</label>
+    <input type="date" id="checkin_date" name="checkin_date" required>
+
+    <label for="checkin_time">Check-in Time</label>
+    <input type="time" id="checkin_time" name="checkin_time" required>
+
+    <button type="submit">Submit Attendance</button>
+</form>
+
+<script>
+    window.onload = function() {
+        const now = new Date();
+
+        // Format date: YYYY-MM-DD
+        const date = now.toISOString().split('T')[0];
+        document.getElementById('checkin_date').value = date;
+
+        // Format time: HH:MM
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        document.getElementById('checkin_time').value = `${hours}:${minutes}`;
+    };
+</script>
+
+</body>
+</html>

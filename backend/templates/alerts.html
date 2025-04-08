@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Missing Students Alert</title>
+  <style>
+    body {
+      background-color: #f5f7fa;
+      font-family: 'Segoe UI', sans-serif;
+      color: #2c3e50;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: linear-gradient(135deg, #2c3e50, #34495e);
+      color: #ecf0f1;
+      padding: 20px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #e74c3c;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #e74c3c;
+      color: #fff;
+    }
+
+    tr:hover {
+      background-color: #f2f2f2;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 50px;
+      font-size: 14px;
+      color: #888;
+    }
+
+    @media screen and (max-width: 768px) {
+      th, td {
+        font-size: 14px;
+      }
+
+      header {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>🚨 Missing Students Alert (After 8 PM)</header>
+
+  <div class="container">
+    <h2>List of Students Not Checked-in After 8 PM Today</h2>
+    <table id="alerts-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Roll No</th>
+          <th>Room</th>
+          <th>Contact</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Dynamic rows will be inserted here by JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">© 2025 Dormitory Management System</div>
+
+  <script>
+    async function fetchMissingStudents() {
+      const response = await fetch('/api/missing_students'); // Flask route
+      const students = await response.json();
+
+      const tableBody = document.querySelector('#alerts-table tbody');
+      tableBody.innerHTML = '';
+
+      if (students.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center;">All students have checked in.</td></tr>';
+      } else {
+        students.forEach(student => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${student.name}</td>
+            <td>${student.roll_no}</td>
+            <td>${student.room_id}</td>
+            <td>${student.contact_number}</td>
+          `;
+          tableBody.appendChild(row);
+        });
+      }
+    }
+
+    fetchMissingStudents();
+  </script>
+</body>
+</html>
